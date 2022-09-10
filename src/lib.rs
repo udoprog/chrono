@@ -100,8 +100,9 @@
 //! use chrono::prelude::*;
 //!
 //! let utc: DateTime<Utc> = Utc::now();       // e.g. `2014-11-28T12:45:59.324310806Z`
-//! let local: DateTime<Local> = Local::now(); // e.g. `2014-11-28T21:45:59.324310806+09:00`
+//! let local: DateTime<Local> = Local::now()?; // e.g. `2014-11-28T21:45:59.324310806+09:00`
 //! # let _ = utc; let _ = local;
+//! # Ok::<_, chrono::ChronoError>(())
 //! ```
 //!
 //! Alternatively, you can create your own date and time.
@@ -112,28 +113,29 @@
 //! use chrono::prelude::*;
 //! use chrono::offset::LocalResult;
 //!
-//! let dt = Utc.ymd(2014, 7, 8).and_hms(9, 10, 11); // `2014-07-08T09:10:11Z`
+//! let dt = Utc.ymd(2014, 7, 8)?.and_hms(9, 10, 11)?; // `2014-07-08T09:10:11Z`
 //! // July 8 is 188th day of the year 2014 (`o` for "ordinal")
 //! assert_eq!(dt, Utc.yo(2014, 189).and_hms(9, 10, 11));
 //! // July 8 is Tuesday in ISO week 28 of the year 2014.
 //! assert_eq!(dt, Utc.isoywd(2014, 28, Weekday::Tue).and_hms(9, 10, 11));
 //!
-//! let dt = Utc.ymd(2014, 7, 8).and_hms_milli(9, 10, 11, 12); // `2014-07-08T09:10:11.012Z`
-//! assert_eq!(dt, Utc.ymd(2014, 7, 8).and_hms_micro(9, 10, 11, 12_000));
-//! assert_eq!(dt, Utc.ymd(2014, 7, 8).and_hms_nano(9, 10, 11, 12_000_000));
+//! let dt = Utc.ymd(2014, 7, 8)?.and_hms_milli(9, 10, 11, 12)?; // `2014-07-08T09:10:11.012Z`
+//! assert_eq!(dt, Utc.ymd(2014, 7, 8)?.and_hms_micro(9, 10, 11, 12_000)?);
+//! assert_eq!(dt, Utc.ymd(2014, 7, 8)?.and_hms_nano(9, 10, 11, 12_000_000)?);
 //!
 //! // dynamic verification
-//! assert_eq!(Utc.ymd_opt(2014, 7, 8).and_hms_opt(21, 15, 33),
-//!            LocalResult::Single(Utc.ymd(2014, 7, 8).and_hms(21, 15, 33)));
-//! assert_eq!(Utc.ymd_opt(2014, 7, 8).and_hms_opt(80, 15, 33), LocalResult::None);
-//! assert_eq!(Utc.ymd_opt(2014, 7, 38).and_hms_opt(21, 15, 33), LocalResult::None);
+//! assert_eq!(Utc.ymd(2014, 7, 8)?.and_hms_opt(21, 15, 33),
+//!            LocalResult::Single(Utc.ymd(2014, 7, 8)?.and_hms(21, 15, 33)?));
+//! assert_eq!(Utc.ymd(2014, 7, 8)?.and_hms_opt(80, 15, 33), LocalResult::None);
+//! assert_eq!(Utc.ymd(2014, 7, 38)?.and_hms_opt(21, 15, 33), LocalResult::None);
 //!
 //! // other time zone objects can be used to construct a local datetime.
 //! // obviously, `local_dt` is normally different from `dt`, but `fixed_dt` should be identical.
-//! let local_dt = Local.ymd(2014, 7, 8).and_hms_milli(9, 10, 11, 12);
-//! let fixed_dt = FixedOffset::east(9 * 3600).ymd(2014, 7, 8).and_hms_milli(18, 10, 11, 12);
+//! let local_dt = Local.ymd(2014, 7, 8)?.and_hms_milli(9, 10, 11, 12)?;
+//! let fixed_dt = FixedOffset::east(9 * 3600).ymd(2014, 7, 8)?.and_hms_milli(18, 10, 11, 12)?;
 //! assert_eq!(dt, fixed_dt);
 //! # let _ = local_dt;
+//! # Ok::<_, chrono::ChronoError>(())
 //! ```
 //!
 //! Various properties are available to the date and time, and can be altered individually.
@@ -147,7 +149,7 @@
 //! use chrono::TimeDelta;
 //!
 //! // assume this returned `2014-11-28T21:45:59.324310806+09:00`:
-//! let dt = FixedOffset::east(9*3600).ymd(2014, 11, 28).and_hms_nano(21, 45, 59, 324310806);
+//! let dt = FixedOffset::east(9*3600).ymd(2014, 11, 28)?.and_hms_nano(21, 45, 59, 324310806)?;
 //!
 //! // property accessors
 //! assert_eq!((dt.year(), dt.month(), dt.day()), (2014, 11, 28));
@@ -161,7 +163,7 @@
 //! // time zone accessor and manipulation
 //! assert_eq!(dt.offset().fix().local_minus_utc(), 9 * 3600);
 //! assert_eq!(dt.timezone(), FixedOffset::east(9 * 3600));
-//! assert_eq!(dt.with_timezone(&Utc), Utc.ymd(2014, 11, 28).and_hms_nano(12, 45, 59, 324310806));
+//! assert_eq!(dt.with_timezone(&Utc), Utc.ymd(2014, 11, 28)?.and_hms_nano(12, 45, 59, 324310806)?);
 //!
 //! // a sample of property manipulations (validates dynamically)
 //! assert_eq!(dt.with_day(29).unwrap().weekday(), Weekday::Sat); // 2014-11-29 is Saturday
@@ -169,14 +171,15 @@
 //! assert_eq!(dt.with_year(-300).unwrap().num_days_from_ce(), -109606); // November 29, 301 BCE
 //!
 //! // arithmetic operations
-//! let dt1 = Utc.ymd(2014, 11, 14).and_hms(8, 9, 10);
-//! let dt2 = Utc.ymd(2014, 11, 14).and_hms(10, 9, 8);
+//! let dt1 = Utc.ymd(2014, 11, 14)?.and_hms(8, 9, 10)?;
+//! let dt2 = Utc.ymd(2014, 11, 14)?.and_hms(10, 9, 8)?;
 //! assert_eq!(dt1.signed_duration_since(dt2), TimeDelta::seconds(-2 * 3600 + 2));
 //! assert_eq!(dt2.signed_duration_since(dt1), TimeDelta::seconds(2 * 3600 - 2));
-//! assert_eq!(Utc.ymd(1970, 1, 1).and_hms(0, 0, 0) + TimeDelta::seconds(1_000_000_000),
-//!            Utc.ymd(2001, 9, 9).and_hms(1, 46, 40));
-//! assert_eq!(Utc.ymd(1970, 1, 1).and_hms(0, 0, 0) - TimeDelta::seconds(1_000_000_000),
-//!            Utc.ymd(1938, 4, 24).and_hms(22, 13, 20));
+//! assert_eq!(Utc.ymd(1970, 1, 1)?.and_hms(0, 0, 0)? + TimeDelta::seconds(1_000_000_000),
+//!            Utc.ymd(2001, 9, 9)?.and_hms(1, 46, 40)?);
+//! assert_eq!(Utc.ymd(1970, 1, 1)?.and_hms(0, 0, 0)? - TimeDelta::seconds(1_000_000_000),
+//!            Utc.ymd(1938, 4, 24)?.and_hms(22, 13, 20)?);
+//! # Ok::<_, chrono::ChronoError>(())
 //! ```
 //!
 //! ### Formatting and Parsing
@@ -206,8 +209,8 @@
 //! use chrono::prelude::*;
 //!
 //! # #[cfg(feature = "unstable-locales")]
-//! # fn test() {
-//! let dt = Utc.ymd(2014, 11, 28).and_hms(12, 0, 9);
+//! # fn main() -> Result<(), chrono::ChronoError> {
+//! let dt = Utc.ymd(2014, 11, 28)?.and_hms(12, 0, 9)?;
 //! assert_eq!(dt.format("%Y-%m-%d %H:%M:%S").to_string(), "2014-11-28 12:00:09");
 //! assert_eq!(dt.format("%a %b %e %T %Y").to_string(), "Fri Nov 28 12:00:09 2014");
 //! assert_eq!(dt.format_localized("%A %e %B %Y, %T", Locale::fr_BE).to_string(), "vendredi 28 novembre 2014, 12:00:09");
@@ -219,14 +222,9 @@
 //! assert_eq!(format!("{:?}", dt), "2014-11-28T12:00:09Z");
 //!
 //! // Note that milli/nanoseconds are only printed if they are non-zero
-//! let dt_nano = Utc.ymd(2014, 11, 28).and_hms_nano(12, 0, 9, 1);
+//! let dt_nano = Utc.ymd(2014, 11, 28)?.and_hms_nano(12, 0, 9, 1)?;
 //! assert_eq!(format!("{:?}", dt_nano), "2014-11-28T12:00:09.000000001Z");
-//! # }
-//! # #[cfg(not(feature = "unstable-locales"))]
-//! # fn test() {}
-//! # if cfg!(feature = "unstable-locales") {
-//! #    test();
-//! # }
+//! # Ok(()) }
 //! ```
 //!
 //! Parsing can be done with three methods:
@@ -259,7 +257,7 @@
 //! ```rust
 //! use chrono::prelude::*;
 //!
-//! let dt = Utc.ymd(2014, 11, 28).and_hms(12, 0, 9);
+//! let dt = Utc.ymd(2014, 11, 28)?.and_hms(12, 0, 9)?;
 //! let fixed_dt = dt.with_timezone(&FixedOffset::east(9*3600));
 //!
 //! // method 1
@@ -284,6 +282,7 @@
 //! assert!(Utc.datetime_from_str("Fri Nov 28 12:00:09", "%a %b %e %T").is_err());
 //! // oops, the weekday is incorrect!
 //! assert!(Utc.datetime_from_str("Sat Nov 28 12:00:09 2014", "%a %b %e %T %Y").is_err());
+//! # Ok::<_, chrono::ChronoError>(())
 //! ```
 //!
 //! Again : See [`format::strftime`](./format/strftime/index.html#specifiers)
@@ -325,12 +324,13 @@
 //!
 //! # // these *may* fail, but only very rarely. just rerun the test if you were that unfortunate ;)
 //! assert_eq!(Utc::today(), Utc::now().date());
-//! assert_eq!(Local::today(), Local::now().date());
+//! assert_eq!(Local::today(), Local::now()?.date());
 //!
 //! assert_eq!(Utc.ymd(2014, 11, 28).weekday(), Weekday::Fri);
 //! assert_eq!(Utc.ymd_opt(2014, 11, 31), LocalResult::None);
-//! assert_eq!(Utc.ymd(2014, 11, 28).and_hms_milli(7, 8, 9, 10).format("%H%M%S").to_string(),
+//! assert_eq!(Utc.ymd(2014, 11, 28)?.and_hms_milli(7, 8, 9, 10)?.format("%H%M%S").to_string(),
 //!            "070809");
+//! # Ok::<_, chrono::ChronoError>(())
 //! ```
 //!
 //! There is no timezone-aware `Time` due to the lack of usefulness and also the complexity.
@@ -439,6 +439,9 @@ pub use date::{Date, MAX_DATE, MIN_DATE};
 mod datetime;
 #[allow(deprecated)]
 pub use datetime::{DateTime, SecondsFormat, MAX_DATETIME, MIN_DATETIME};
+
+mod error;
+pub use self::error::ChronoError;
 
 pub mod format;
 /// L10n locales.

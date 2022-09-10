@@ -14,12 +14,12 @@ use super::tz_info::TimeZone;
 use super::{DateTime, FixedOffset, Local, NaiveDateTime};
 use crate::{Datelike, LocalResult, Utc};
 
-pub(super) fn now() -> DateTime<Local> {
+pub(super) fn now() -> Result<DateTime<Local>, ChronoError> {
     let now = Utc::now().naive_utc();
-    naive_to_local(&now, false).unwrap()
+    Ok(naive_to_local(&now, false))
 }
 
-pub(super) fn naive_to_local(d: &NaiveDateTime, local: bool) -> LocalResult<DateTime<Local>> {
+pub(super) fn naive_to_local(d: &NaiveDateTime, local: bool) -> DateTime<Local> {
     TZ_INFO.with(|maybe_cache| {
         maybe_cache.borrow_mut().get_or_insert_with(Cache::default).offset(*d, local)
     })

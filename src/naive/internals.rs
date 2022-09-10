@@ -488,19 +488,19 @@ mod tests {
 
     #[test]
     fn test_year_flags_ndays_from_year() {
-        assert_eq!(YearFlags::from_year(2014).ndays(), 365);
-        assert_eq!(YearFlags::from_year(2012).ndays(), 366);
-        assert_eq!(YearFlags::from_year(2000).ndays(), 366);
-        assert_eq!(YearFlags::from_year(1900).ndays(), 365);
-        assert_eq!(YearFlags::from_year(1600).ndays(), 366);
-        assert_eq!(YearFlags::from_year(1).ndays(), 365);
-        assert_eq!(YearFlags::from_year(0).ndays(), 366); // 1 BCE (proleptic Gregorian)
-        assert_eq!(YearFlags::from_year(-1).ndays(), 365); // 2 BCE
-        assert_eq!(YearFlags::from_year(-4).ndays(), 366); // 5 BCE
-        assert_eq!(YearFlags::from_year(-99).ndays(), 365); // 100 BCE
-        assert_eq!(YearFlags::from_year(-100).ndays(), 365); // 101 BCE
-        assert_eq!(YearFlags::from_year(-399).ndays(), 365); // 400 BCE
-        assert_eq!(YearFlags::from_year(-400).ndays(), 366); // 401 BCE
+        assert_eq!(YearFlags::from_year(2014).unwrap().ndays(), 365);
+        assert_eq!(YearFlags::from_year(2012).unwrap().ndays(), 366);
+        assert_eq!(YearFlags::from_year(2000).unwrap().ndays(), 366);
+        assert_eq!(YearFlags::from_year(1900).unwrap().ndays(), 365);
+        assert_eq!(YearFlags::from_year(1600).unwrap().ndays(), 366);
+        assert_eq!(YearFlags::from_year(1).unwrap().ndays(), 365);
+        assert_eq!(YearFlags::from_year(0).unwrap().ndays(), 366); // 1 BCE (proleptic Gregorian)
+        assert_eq!(YearFlags::from_year(-1).unwrap().ndays(), 365); // 2 BCE
+        assert_eq!(YearFlags::from_year(-4).unwrap().ndays(), 366); // 5 BCE
+        assert_eq!(YearFlags::from_year(-99).unwrap().ndays(), 365); // 100 BCE
+        assert_eq!(YearFlags::from_year(-100).unwrap().ndays(), 365); // 101 BCE
+        assert_eq!(YearFlags::from_year(-399).unwrap().ndays(), 365); // 400 BCE
+        assert_eq!(YearFlags::from_year(-400).unwrap().ndays(), 366); // 401 BCE
     }
 
     #[test]
